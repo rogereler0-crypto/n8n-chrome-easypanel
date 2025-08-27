@@ -1,23 +1,22 @@
-# Inicia com a imagem oficial mais recente do n8n
+# Inicia com a imagem oficial mais recente do n8n (baseada em Alpine)
 FROM n8nio/n8n:latest
 
-# Troca para o usuário root para poder instalar pacotes do sistema
+# Troca para o usuário root para poder instalar pacotes
 USER root
 
-# Atualiza a lista de pacotes e instala o Chromium e dependências necessárias
-# O '--no-install-recommends' evita instalar pacotes desnecessários
-RUN apt-get update && \
-    apt-get install -y \
+# Usa o gerenciador 'apk' do Alpine para atualizar e instalar o Chromium
+# Adicionamos as dependências mais comuns para o Chromium funcionar no Alpine
+RUN apk update && \
+    apk add --no-cache \
     chromium \
-    libgbm-dev \
-    libatk-bridge2.0-0 \
-    libgtk-3-0 \
-    --no-install-recommends
+    harfbuzz \
+    nss \
+    freetype \
+    ttf-freefont
 
-# Informa ao Puppeteer para não baixar o Chromium, pois já o instalamos manualmente
+# As variáveis de ambiente para o Puppeteer continuam as mesmas
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-# Informa ao Puppeteer onde encontrar o executável do Chromium que acabamos de instalar
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Retorna para o usuário 'node', que é o padrão do n8n, por segurança
+# Retorna para o usuário 'node' por segurança
 USER node
